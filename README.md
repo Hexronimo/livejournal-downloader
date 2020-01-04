@@ -7,7 +7,8 @@ Everyone hates LJ, but long ago it was so popular that many people made a blog t
 ## What it can do right now
 Simple GUI was added to a program, there is no form validation right know so fill form carefully: delete last slash from journal name if it have some and don't forget to choose download directory.
 ![myImage](https://github.com/Hexronimo/livejournal-downloader/raw/master/lj-downloader-gui.png)
-Only one download option available for now - download of full pages without `<head></head>` (without style and scripts), all images will be saved locally and their URLs in the pages will be replaced with local ones, so you can collect images with it too.
+
+Only one download option is available for now - download of full pages without `<head></head>` (without style and scripts), all images will be saved locally and their URLs in the pages will be replaced with local ones, so you can collect images with it too.
 Also you can choose how much posts you want to download.
 
 ## What will be implemented soon
