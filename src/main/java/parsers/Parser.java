@@ -12,4 +12,6 @@ public interface Parser {
 
     void  setQuantity(int q);
 
+    int getSize();
+
 }

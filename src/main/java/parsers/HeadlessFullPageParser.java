@@ -108,6 +108,10 @@ public class HeadlessFullPageParser implements Parser {
         this.quantity = q;
     }
 
+    public int getSize() {
+        return size;
+    }
+
     @Override
     public void setPeriod(LocalDate start, LocalDate stop) {
         this.start = start;

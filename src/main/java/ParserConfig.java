@@ -42,6 +42,10 @@ public class ParserConfig {
         }
     }
 
+    public static int requestSize(){
+        return parser.getSize();
+    }
+
     public static void setQuantity(int q) {
         quantity = q;
     }
