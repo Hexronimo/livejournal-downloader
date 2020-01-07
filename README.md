@@ -13,8 +13,8 @@ Also you can choose how much posts you want to download.
 
 ## What will be implemented soon
 * GUI - done!
-* Form validation
-* Command line interaction
+* Form validation - half done!
+* Command line support - done!
 * Options to download just images, full pages with its CSS style
 * Options to get the list of posts titles first then to choose which one to download
 * Log
