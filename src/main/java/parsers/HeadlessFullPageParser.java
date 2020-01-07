@@ -41,7 +41,7 @@ public class HeadlessFullPageParser implements Parser {
         }
         userName = userName1;
         int maxThreads = 5;
-        if (maxThreads > quantity) maxThreads = quantity;
+        if (maxThreads > size) maxThreads = size;
 
         while (posts.size() > 0){
 
@@ -53,7 +53,7 @@ public class HeadlessFullPageParser implements Parser {
                         Document doc = Jsoup.connect(n)
                                 .data("query", "Java")
                                 .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64; rv:50.0)")
-                                .timeout(5000)
+                                .timeout(7000)
                                 .get();
 
                         doc.select("header").remove();
@@ -75,8 +75,7 @@ public class HeadlessFullPageParser implements Parser {
                                     File file = new File(imgDir + "/" + (url.getFile()));
                                     FileUtils.copyURLToFile(url, file);
                                     replacementName = file.getAbsolutePath();
-                                } catch(Exception e) {
-                                }
+                                } catch(Exception e) {}
                                 img.attr("src", replacementName);
                             }
 
@@ -90,13 +89,14 @@ public class HeadlessFullPageParser implements Parser {
                         size = size-1;
                     }
                     countThreads--;
-                    System.out.println("Ended. Thread for " + n);
+                    //System.out.println("Ended. Thread for " + n);
                 });
 
                 countThreads++;
-                System.out.println("Started. Thread for " + n);
+                //System.out.println("Started. Thread for " + n);
                 thread.start();
             }
+
         }
 
 

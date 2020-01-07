@@ -4,7 +4,14 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class MainWindow extends JFrame {
@@ -102,24 +109,50 @@ public class MainWindow extends JFrame {
 
         JPanel result = new JPanel();
         result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
-        JLabel done = new JLabel();
+        JTextArea done = new JTextArea();
+        done.setBackground(this.getBackground());
         JLabel size = new JLabel();
         result.add(done);
         result.add(size);
 
         start.addActionListener(e -> {
             done.setText("");
-            ParserConfig.setJournal(jName.getText()); // replace with lj url without last slash!
-            ParserConfig.setSaveDir(saveDir.toPath()); // replace with dir where you want to save data
-            int q = -1;
-            if (jQuantity.getText() != null && !jQuantity.getText().equals("")) {
-                q = Integer.parseInt(jQuantity.getText());
+            // validation
+            String e1 = normalizeJournalName(jName.getText());
+            e1 = normalizeJournalName(e1);
+            boolean hasErrors = false;
+            if (validateJournalName(e1) != null) {
+                done.setText(done.getText() + "\n" + validateJournalName(e1));
+                done.setForeground(Color.RED);
+                hasErrors = true;
             }
-            ParserConfig.setQuantity(q); // how much posts you want to save, -1 for all posts
-            ParserConfig.setWantedResult(0); // just don't touch it while now
-            ParserConfig.requestParse();
-            done.setText("Done!");
-            size.setText(ParserConfig.requestSize() + " posts successfully downloaded to " + saveDir.getAbsolutePath());
+            if (saveDir == null) {
+                done.setText(done.getText() + "\nChoose download location first.");
+                done.setForeground(Color.RED);
+                hasErrors = true;
+            }
+            String e3 = jQuantity.getText();
+            if (validateQuantity(e3) != null) {
+                done.setText(done.getText() + "\n" + validateQuantity(e3));
+                done.setForeground(Color.RED);
+                hasErrors = true;
+            }
+
+            if (!hasErrors) {
+                // end of the validation
+                if (e3 == null || e3.trim().length() == 0) e3 = "-1";
+                int q = Integer.parseInt(e3);
+                done.setForeground(Color.darkGray);
+
+                ParserConfig.setJournal(e1); // replace with lj url without last slash!
+                ParserConfig.setSaveDir(saveDir.toPath()); // replace with dir where you want to save data
+
+                ParserConfig.setQuantity(q); // how much posts you want to save, -1 for all posts
+                ParserConfig.setWantedResult(0); // just don't touch it while now
+                ParserConfig.requestParse();
+                done.setText("Done!");
+                size.setText(ParserConfig.requestSize() + " posts successfully downloaded to " + saveDir.getAbsolutePath());
+            }
         });
 
         JPanel panel1 = new JPanel(new FlowLayout(3,2,0));
@@ -139,6 +172,128 @@ public class MainWindow extends JFrame {
     }
 
     public static void main(String[] args) {
-        MainWindow mainWindow = new MainWindow();
+        System.out.println("Welcome to Livejournal downloader!");
+        System.out.println("Enter 1 - to use GUI, 2 - to use command line");
+        System.out.print("> ");
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+            String e = br.readLine();
+            if (e.equals("1")) {
+                MainWindow mainWindow = new MainWindow();
+                System.out.println("GUI is loading...");
+            } else if (e.equals("2")){
+                noGui();
+            }
+        } catch (IOException e) {}
+
+
+    }
+
+    public static String normalizeJournalName(String name){
+        if (name == null || name.trim().length() == 0) {
+            return name; // it will be dropped at validation level
+        }
+        if (name.endsWith("/")) name = name.substring(0, name.length()-1);
+        name.replace("www.", "");
+        if(!name.startsWith("https://") || !name.startsWith("http://")){
+            name = "https://" + name;
+        }
+        if (!name.contains(".")) { // because there are premium users with custom url address
+            name = name + ".livejournal.com";
+        }
+        return name;
+    }
+
+    public static  String validateJournalName(String name){
+        if (name == null || name.trim().length() == 0) {
+            return "Journal name can't be empty.";
+        }
+
+
+        try {
+            final URL url = new URL(name);
+            HttpURLConnection huc = (HttpURLConnection) url.openConnection();
+            huc.setRequestMethod("HEAD");
+            int responseCode = huc.getResponseCode();
+
+            if (responseCode != 200) {
+                return "Unable to find a journal with this name.";
+            }
+        } catch (Exception e) {
+            return "Unable to find a journal with this name.";
+        }
+
+        return null;
+    }
+
+    public static String validateSaveDir(String dir){
+        if (dir == null || dir.trim().length() == 0) {
+            return "Directory name can't be empty";
+        }
+        Path path = Paths.get(dir);
+        if (path.toFile().isDirectory()) return null;
+        try {
+            if (!path.toFile().exists()) Files.createDirectories(path);
+        } catch (IOException e) {
+            return "Wrong save location.";
+        }
+        return null;
+    }
+
+    public static String validateQuantity(String q){
+        if (q ==  null || q.equals("-1") || q.trim().length() == 0) return null;
+        int num = 0;
+        try {
+            num = Integer.parseInt(q);
+        } catch (Exception e){
+            return "Quantity must be a number.";
+        }
+
+        if (num < -1 || num == 0) return "Quantity can't match zero or below.";
+        return null;
+    }
+    public static void noGui () {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+
+            String validation = "";
+            String e1 = "";
+            while (validation != null) {
+                System.out.println("Enter the link to a journal");
+                System.out.print("> ");
+                e1 = br.readLine();
+                e1 = normalizeJournalName(e1);
+                validation = validateJournalName(e1);
+                if (validation != null) System.out.println(validation);
+            }
+
+            validation = "";
+            String e2 = "";
+            while (validation != null) {
+                System.out.println("Enter the full path to the directory where you want to save a journal");
+                System.out.print("> ");
+                e2 = br.readLine();
+                validation = validateSaveDir(e2);
+                if (validation != null) System.out.println(validation);
+            }
+
+            validation = "";
+            String e3 = "";
+            while (validation != null) {
+                System.out.println("How much entries you want to download? (enter -1 for all)");
+                System.out.print("> ");
+                e3 = br.readLine();
+                validation = validateQuantity(e3);
+                if(validation != null) System.out.println(e3);
+            }
+
+            System.out.println("Parsing...");
+
+            ParserConfig.setJournal(e1);
+            ParserConfig.setSaveDir(Paths.get(e2));
+            ParserConfig.setQuantity(Integer.parseInt(e3)); // how much posts you want to save, -1 for all posts
+            ParserConfig.setWantedResult(0); // just don't touch it while now
+            ParserConfig.requestParse();
+            System.out.println("Done!");
+            System.out.println(ParserConfig.requestSize() + " posts successfully downloaded to " + e2);
+        } catch (IOException e){}
     }
 }
