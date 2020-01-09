@@ -19,6 +19,9 @@ Also you can choose how much posts you want to download.
 * Log
 * More tests with different kinds of journals
 
+## How to run it
+Download archive and unzip it. Go to directory where MainWindows.class file is. Open Terminal (or other other application for commands like Command Line) in this directory (e.g., `cd home/dude/your-folder-path`). Run `java MainWindow`.
+
 ## Contributions
 
 
