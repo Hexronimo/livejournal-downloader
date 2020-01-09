@@ -3,3 +3,5 @@ LivejournalParser.iml
 target/generated-sources
 target/classes/META-INF
 src/test/
+LICENSE
+README.md

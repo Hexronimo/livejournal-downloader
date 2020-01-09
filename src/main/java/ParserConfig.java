@@ -1,5 +1,6 @@
 
 import parsers.HeadlessFullPageParser;
+import parsers.ImagesOnlyParser;
 import parsers.Parser;
 
 import java.io.IOException;
@@ -38,7 +39,8 @@ public class ParserConfig {
 
     public static void setWantedResult(int i) {
         switch (i) {
-            case 0: parser = new HeadlessFullPageParser(saveDir); return;
+            case 0: { parser = new HeadlessFullPageParser(saveDir); break; }
+            case 1: { parser = new ImagesOnlyParser(saveDir); break; }
         }
     }
 

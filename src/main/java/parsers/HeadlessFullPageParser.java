@@ -53,6 +53,7 @@ public class HeadlessFullPageParser implements Parser {
                         Document doc = Jsoup.connect(n)
                                 .data("query", "Java")
                                 .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64; rv:50.0)")
+                                .referrer("http://www.yandex.ru")
                                 .timeout(7000)
                                 .get();
 
@@ -64,22 +65,17 @@ public class HeadlessFullPageParser implements Parser {
                             Path imgDir = Paths.get(saveDir +"/img_" + userName +"_"+ n.substring(n.lastIndexOf("/") + 1, n.lastIndexOf(".")));
                             Files.createDirectories(imgDir);
 
-                            int imgName = 0;
-
                             for (Element img : doc.select("img[src]")){
 
                                 String replacementName = "";
                                 try {
                                     URL url = new URL(img.attr("src"));
-                                    BufferedImage bi = ImageIO.read(url);
                                     File file = new File(imgDir + "/" + (url.getFile()));
                                     FileUtils.copyURLToFile(url, file);
                                     replacementName = file.getAbsolutePath();
                                 } catch(Exception e) {}
                                 img.attr("src", replacementName);
                             }
-
-
 
                         File file = new File(saveDir +"/" + userName +"_"+ n.substring(n.lastIndexOf("/") + 1));
                         FileUtils.writeStringToFile(file, doc.html(), "UTF-8");
@@ -98,8 +94,6 @@ public class HeadlessFullPageParser implements Parser {
             }
 
         }
-
-
         return null;
     }
 

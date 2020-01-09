@@ -1,9 +1,6 @@
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -85,10 +82,13 @@ public class MainWindow extends JFrame {
         JLabel lDownload = new JLabel("Download");
         lQuantity.setBorder(BorderFactory.createEmptyBorder(5,0,5,0));
         JRadioButton firstButton = new JRadioButton("Full post without <head>");
+        JRadioButton secondButton = new JRadioButton("Only images");
         firstButton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        secondButton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
         firstButton.setSelected(true);
         ButtonGroup group = new ButtonGroup();
         group.add(firstButton);
+        group.add(secondButton);
 
         JPanel panel2 = new JPanel();
         panel2.setLayout(new BoxLayout(panel2, BoxLayout.Y_AXIS));
@@ -98,6 +98,7 @@ public class MainWindow extends JFrame {
         panel2.add(lTooltip2);
         panel2.add(lDownload);
         panel2.add(firstButton);
+        panel2.add(secondButton);
         panel3.add(panel2);
 
         JButton start = new JButton("Start!");
@@ -148,7 +149,11 @@ public class MainWindow extends JFrame {
                 ParserConfig.setSaveDir(saveDir.toPath()); // replace with dir where you want to save data
 
                 ParserConfig.setQuantity(q); // how much posts you want to save, -1 for all posts
-                ParserConfig.setWantedResult(0); // just don't touch it while now
+                if (firstButton.isSelected()) {
+                    ParserConfig.setWantedResult(0);
+                } else if (secondButton.isSelected()) {
+                    ParserConfig.setWantedResult(1);
+                }
                 ParserConfig.requestParse();
                 done.setText("Done!");
                 size.setText(ParserConfig.requestSize() + " posts successfully downloaded to " + saveDir.getAbsolutePath());
@@ -194,7 +199,7 @@ public class MainWindow extends JFrame {
         }
         if (name.endsWith("/")) name = name.substring(0, name.length()-1);
         name.replace("www.", "");
-        if(!name.startsWith("https://") || !name.startsWith("http://")){
+        if(!name.startsWith("https://") && !name.startsWith("http://")){
             name = "https://" + name;
         }
         if (!name.contains(".")) { // because there are premium users with custom url address
@@ -219,6 +224,8 @@ public class MainWindow extends JFrame {
                 return "Unable to find a journal with this name.";
             }
         } catch (Exception e) {
+            System.out.println(name);
+            e.printStackTrace();
             return "Unable to find a journal with this name.";
         }
 
@@ -284,13 +291,36 @@ public class MainWindow extends JFrame {
                 validation = validateQuantity(e3);
                 if(validation != null) System.out.println(e3);
             }
-
-            System.out.println("Parsing...");
+            System.out.println("Do you want to choose more options?");
+            System.out.println("1 - yes, 2 - no (just download full posts as html)");
+            String e4 = null;
+            while (e4 == null || (!"1".equals(e4.trim()) && !"2".equals(e4.trim()))) {
+                System.out.print("> ");
+                e4 = br.readLine();
+            }
 
             ParserConfig.setJournal(e1);
             ParserConfig.setSaveDir(Paths.get(e2));
             ParserConfig.setQuantity(Integer.parseInt(e3)); // how much posts you want to save, -1 for all posts
-            ParserConfig.setWantedResult(0); // just don't touch it while now
+
+            String e5 = null;
+            if (e4.equals("1")) {
+                System.out.println("What do you want to download?");
+                System.out.println("1 - full posts without <head></head>");
+                System.out.println("2 - only images");
+
+                while (e5 == null || (!"1".equals(e5) && !"2".equals(e5))) {
+                    System.out.print("> ");
+                    e5 = br.readLine();
+                }
+
+                if(e5.equals("1")) ParserConfig.setWantedResult(0);
+                if(e5.equals("2")) ParserConfig.setWantedResult(1);
+
+            }
+
+            System.out.println("Parsing...");
+
             ParserConfig.requestParse();
             System.out.println("Done!");
             System.out.println(ParserConfig.requestSize() + " posts successfully downloaded to " + e2);
