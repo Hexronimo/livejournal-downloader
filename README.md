@@ -1,5 +1,5 @@
 # Livejournal Downloader
-Java application to download Livejournal blogs automatically with few options of saving and parsing
+Java application to download Livejournal blogs automatically with few options of saving and parsing (JSOUP)
 
 ## Why people need it
 Everyone hates LJ, but long ago it was so popular that many people made a blog there. With this program you can quickly grab your blog, save it to disk and finally delete it from this messy nazi-trolls trashbin called LJ.
