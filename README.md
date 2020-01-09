@@ -14,7 +14,7 @@ Also you can choose how much posts you want to download.
 * GUI - done!
 * Form validation - half done!
 * Command line support - done!
-* Options to download just images, full pages with its CSS style
+* Options to download just images - done!, full pages with its CSS style
 * Options to get the list of posts titles first then to choose which one to download
 * Log
 * More tests with different kinds of journals
